@@ -132,21 +132,26 @@ public class MainActivity extends AppCompatActivity {
         loadModePreference();
         updateUI();
         
-        // 启动监控服务
-        startAppMonitorService();
+        // 暂时禁用监控服务启动，避免可能的闪退问题
+        // startAppMonitorService();
     }
     
     private void startAppMonitorService() {
-        boolean protectionEnabled = getSharedPreferences("app_prefs", MODE_PRIVATE)
-                .getBoolean("protection_enabled", true);
-                
-        if (protectionEnabled) {
-            Intent serviceIntent = new Intent(this, AppMonitorService.class);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                startForegroundService(serviceIntent);
-            } else {
-                startService(serviceIntent);
+        try {
+            boolean protectionEnabled = getSharedPreferences("app_prefs", MODE_PRIVATE)
+                    .getBoolean("protection_enabled", true);
+                    
+            if (protectionEnabled) {
+                Intent serviceIntent = new Intent(this, AppMonitorService.class);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(serviceIntent);
+                } else {
+                    startService(serviceIntent);
+                }
             }
+        } catch (Exception e) {
+            e.printStackTrace();
+            // 服务启动失败时不影响应用正常运行
         }
     }
 

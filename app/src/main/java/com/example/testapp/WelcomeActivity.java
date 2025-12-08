@@ -57,14 +57,21 @@ public class WelcomeActivity extends AppCompatActivity {
     }
 
     private void requestPermissions() {
-        if (!permissionManager.hasAllPermissions()) {
-            // 进入权限申请界面
-            startActivity(new Intent(this, PermissionRequestActivity.class));
-            finish();
-        } else {
-            // 已有所有权限，直接进入主界面
+        // 直接进入主界面，跳过权限检查
+        try {
             startActivity(new Intent(this, MainActivity.class));
             finish();
+        } catch (Exception e) {
+            e.printStackTrace();
+            // 如果启动MainActivity失败，尝试启动权限申请界面
+            try {
+                startActivity(new Intent(this, PermissionRequestActivity.class));
+                finish();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                // 如果都失败，显示错误信息
+                android.widget.Toast.makeText(this, "启动失败，请重试", android.widget.Toast.LENGTH_SHORT).show();
+            }
         }
     }
 }
