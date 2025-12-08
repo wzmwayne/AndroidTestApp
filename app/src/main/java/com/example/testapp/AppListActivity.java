@@ -58,7 +58,7 @@ public class AppListActivity extends AppCompatActivity implements AppListAdapter
         titleText.setText(isBlacklistMode ? R.string.blacklist_mode : R.string.whitelist_mode);
         
         // 返回按钮
-        findViewById(R.id.backButton).setOnClickListener(v -> finish());
+        findViewById(android.R.id.home).setOnClickListener(v -> finish());
         
         // 保存按钮
         findViewById(R.id.saveButton).setOnClickListener(v -> saveSelectedApps());

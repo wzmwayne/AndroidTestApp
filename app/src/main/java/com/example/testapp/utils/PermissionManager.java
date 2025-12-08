@@ -65,10 +65,18 @@ public class PermissionManager {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
             AppOpsManager appOpsManager = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
             if (appOpsManager != null) {
-                int mode = appOpsManager.checkOpNoThrow(
-                        AppOpsManager.OPSTR_IGNORE_BATTERY_OPTIMIZATIONS,
-                        android.os.Process.myUid(),
-                        context.getPackageName());
+                int mode;
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                    mode = appOpsManager.unsafeCheckOpNoThrow(
+                            "android:ignore_battery_optimizations",
+                            android.os.Process.myUid(),
+                            context.getPackageName());
+                } else {
+                    mode = appOpsManager.checkOpNoThrow(
+                            "android:ignore_battery_optimizations",
+                            android.os.Process.myUid(),
+                            context.getPackageName());
+                }
                 return mode == AppOpsManager.MODE_ALLOWED;
             }
         }
