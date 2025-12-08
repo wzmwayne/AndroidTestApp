@@ -1,3 +1,24 @@
 <resources>
-    <string name="app_name">TestApp</string>
+    <string name="app_name">应用管理器</string>
+    <string name="welcome_title">欢迎使用应用管理器</string>
+    <string name="set_password">设置密码</string>
+    <string name="confirm_password">确认密码</string>
+    <string name="password_hint">请输入6位数密码</string>
+    <string name="password_not_match">密码不匹配</string>
+    <string name="password_length_error">密码必须是6位数</string>
+    <string name="enter_password">输入密码</string>
+    <string name="unlock">解锁</string>
+    <string name="wrong_password">密码错误</string>
+    <string name="blacklist_mode">黑名单模式</string>
+    <string name="whitelist_mode">白名单模式</string>
+    <string name="search_apps">搜索应用</string>
+    <string name="permission_required">需要权限</string>
+    <string name="grant_permissions">授予权限</string>
+    <string name="accessibility_service">无障碍服务</string>
+    <string name="overlay_permission">悬浮窗权限</string>
+    <string name="battery_optimization">电池优化</string>
+    <string name="usage_access">使用情况访问权限</string>
+    <string name="app_blocked">应用已被拦截</string>
+    <string name="app_blocked_message">此应用已被管理员限制使用</string>
+    <string name="accessibility_service_description">应用管理器需要无障碍服务来检测和拦截应用</string>
 </resources>
