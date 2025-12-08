@@ -29,9 +29,13 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-gradle-
           
-    - name: Grant execute permission for gradlew
-      run: chmod +x gradlew
-      
+    - name: Initialize Gradle Wrapper
+      run: |
+        curl -L -o gradle.zip https://services.gradle.org/distributions/gradle-8.1.1-bin.zip
+        unzip gradle.zip
+        mv gradle-8.1.1/bin/gradle gradlew
+        chmod +x gradlew
+        
     - name: Build Debug APK
       run: ./gradlew assembleDebug
       
