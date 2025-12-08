@@ -101,7 +101,7 @@ public class MainActivity extends AppCompatActivity {
         blacklistCountText.setText("已添加 " + blacklistCount + " 个应用");
 
         // 更新白名单卡片
-        TextView whitelistCountText = whitelistCard.findViewById(R.id.countText);
+        TextView whitelistCountText = whitelistCard.findViewById(R.id.whitelistCountText);
         whitelistCountText.setText("已添加 " + whitelistCount + " 个应用");
 
         // 高亮当前模式
