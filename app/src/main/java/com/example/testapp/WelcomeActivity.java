@@ -88,11 +88,17 @@ public class WelcomeActivity extends AppCompatActivity {
             return;
         }
         
-        passwordManager.setPassword(password);
-        passwordManager.setFirstTimeComplete();
-        
-        // 设置完密码后，请求权限
-        requestPermissions();
+        try {
+            // 防止在设置密码时闪退
+            passwordManager.setPassword(password);
+            passwordManager.setFirstTimeComplete();
+            
+            // 设置完密码后，请求权限
+            requestPermissions();
+        } catch (Exception e) {
+            Toast.makeText(this, "设置密码失败，请重试", Toast.LENGTH_SHORT).show();
+            e.printStackTrace();
+        }
     }
 
     private void handlePasswordVerification(String password) {

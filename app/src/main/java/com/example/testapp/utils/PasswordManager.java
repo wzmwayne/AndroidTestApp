@@ -35,7 +35,19 @@ public class PasswordManager {
         } catch (GeneralSecurityException | IOException e) {
             e.printStackTrace();
             // 降级到普通SharedPreferences
-            sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+            try {
+                sharedPreferences = context.getSharedPreferences(PREFS_NAME, Context.MODE_PRIVATE);
+            } catch (Exception ex) {
+                // 如果仍然失败，创建一个新的SharedPreferences实例
+                ex.printStackTrace();
+                try {
+                    sharedPreferences = context.getSharedPreferences(PREFS_NAME + "_fallback", Context.MODE_PRIVATE);
+                } catch (Exception fallbackEx) {
+                    // 最后的保障，使用应用默认的SharedPreferences
+                    fallbackEx.printStackTrace();
+                    sharedPreferences = context.getApplicationContext().getSharedPreferences(PREFS_NAME + "_emergency", Context.MODE_PRIVATE);
+                }
+            }
         }
     }
     
@@ -52,12 +64,37 @@ public class PasswordManager {
     }
     
     public void setPassword(String password) {
-        sharedPreferences.edit().putString(PASSWORD_KEY, password).apply();
+        try {
+            // 使用密码的平方进行加密存储
+            long passwordValue = Long.parseLong(password);
+            long squaredPassword = passwordValue * passwordValue;
+            sharedPreferences.edit().putString(PASSWORD_KEY, String.valueOf(squaredPassword)).apply();
+        } catch (NumberFormatException e) {
+            // 如果转换失败，使用原始方法
+            try {
+                sharedPreferences.edit().putString(PASSWORD_KEY, password).apply();
+            } catch (Exception ex) {
+                ex.printStackTrace();
+                throw new RuntimeException("设置密码失败", ex);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            throw new RuntimeException("设置密码失败", e);
+        }
     }
     
     public boolean checkPassword(String password) {
-        String savedPassword = sharedPreferences.getString(PASSWORD_KEY, "");
-        return savedPassword.equals(password);
+        try {
+            String savedPassword = sharedPreferences.getString(PASSWORD_KEY, "");
+            long savedPasswordValue = Long.parseLong(savedPassword);
+            long inputPasswordValue = Long.parseLong(password);
+            long squaredInputPassword = inputPasswordValue * inputPasswordValue;
+            return savedPasswordValue == squaredInputPassword;
+        } catch (NumberFormatException e) {
+            // 如果转换失败，使用原始比较方法
+            String savedPassword = sharedPreferences.getString(PASSWORD_KEY, "");
+            return savedPassword.equals(password);
+        }
     }
     
     public boolean isValidPassword(String password) {
