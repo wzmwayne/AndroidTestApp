@@ -13,11 +13,9 @@ import androidx.cardview.widget.CardView;
 
 import com.example.testapp.services.AppMonitorService;
 import com.example.testapp.utils.PasswordManager;
-import com.example.testapp.utils.DhizukuManager;
 
 public class MainActivity extends AppCompatActivity {
     private PasswordManager passwordManager;
-    private DhizukuManager dhizukuManager;
     
     private CardView blacklistCard;
     private CardView whitelistCard;
@@ -34,7 +32,6 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         passwordManager = new PasswordManager(this);
-        dhizukuManager = new DhizukuManager(this);
         
         initViews();
         setupClickListeners();

@@ -11,11 +11,7 @@
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.REQUEST_IGNORE_BATTERY_OPTIMIZATIONS" />
     
-    <!-- Dhizuku权限 -->
-    <permission
-        android:name="${applicationId}.permission.DHIZUKU"
-        android:protectionLevel="signature" />
-    <uses-permission android:name="${applicationId}.permission.DHIZUKU" />
+    
 
     <application
         android:allowBackup="true"

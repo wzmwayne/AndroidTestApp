@@ -10,11 +10,9 @@ import android.widget.Toast;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.example.testapp.utils.PasswordManager;
-import com.example.testapp.utils.DhizukuManager;
 
 public class SettingsActivity extends AppCompatActivity {
     private PasswordManager passwordManager;
-    private DhizukuManager dhizukuManager;
     
     private Switch protectionSwitch;
     private Switch autoStartSwitch;
@@ -28,7 +26,6 @@ public class SettingsActivity extends AppCompatActivity {
         setContentView(R.layout.activity_settings);
 
         passwordManager = new PasswordManager(this);
-        dhizukuManager = new DhizukuManager(this);
         
         initViews();
         setupClickListeners();

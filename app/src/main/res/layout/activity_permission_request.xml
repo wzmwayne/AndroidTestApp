@@ -268,60 +268,6 @@
 
             </androidx.cardview.widget.CardView>
 
-            <!-- Dhizuku权限 -->
-            <androidx.cardview.widget.CardView
-                android:id="@+id/dhizukuCard"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginBottom="16dp"
-                android:clickable="true"
-                android:focusable="true"
-                android:foreground="?android:attr/selectableItemBackground"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="4dp">
-
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:padding="16dp">
-
-                    <LinearLayout
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:orientation="horizontal">
-
-                        <TextView
-                            android:layout_width="0dp"
-                            android:layout_height="wrap_content"
-                            android:layout_weight="1"
-                            android:text="Dhizuku增强权限"
-                            android:textColor="@color/text_primary"
-                            android:textSize="16sp"
-                            android:textStyle="bold" />
-
-                        <TextView
-                            android:id="@+id/dhizukuStatus"
-                            android:layout_width="wrap_content"
-                            android:layout_height="wrap_content"
-                            android:text="未授权"
-                            android:textColor="@android:color/holo_red_dark"
-                            android:textSize="14sp" />
-
-                    </LinearLayout>
-
-                    <TextView
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:layout_marginTop="8dp"
-                        android:text="增强权限管理，防止应用被卸载"
-                        android:textColor="@color/text_secondary"
-                        android:textSize="14sp" />
-
-                </LinearLayout>
-
-            </androidx.cardview.widget.CardView>
-
         </LinearLayout>
 
     </ScrollView>

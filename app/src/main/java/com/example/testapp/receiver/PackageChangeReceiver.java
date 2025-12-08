@@ -6,7 +6,6 @@ import android.content.Intent;
 import android.util.Log;
 
 import com.example.testapp.services.AppBlockAccessibilityService;
-import com.example.testapp.utils.DhizukuManager;
 
 public class PackageChangeReceiver extends BroadcastReceiver {
     private static final String TAG = "PackageChangeReceiver";
@@ -96,30 +95,6 @@ public class PackageChangeReceiver extends BroadcastReceiver {
     private void blockInstallation(Context context, String packageName) {
         Log.d(TAG, "Blocking installation of: " + packageName);
         
-        // 使用Dhizuku阻止安装
-        DhizukuManager dhizukuManager = new DhizukuManager(context);
-        if (dhizukuManager.hasPermission()) {
-            dhizukuManager.executeWithPermission(new DhizukuManager.DhizukuAction() {
-                @Override
-                public Intent getIntent() {
-                    Intent intent = new Intent("android.intent.action.DELETE");
-                    intent.setData(android.net.Uri.parse("package:" + packageName));
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    return intent;
-                }
-
-                @Override
-                public void onResult(Object result) {
-                    Log.d(TAG, "Successfully blocked installation of: " + packageName);
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    Log.e(TAG, "Failed to block installation", e);
-                }
-            });
-        }
-
         // 显示拦截界面
         showBlockOverlay(context, "应用安装已被阻止", packageName);
     }
@@ -127,31 +102,6 @@ public class PackageChangeReceiver extends BroadcastReceiver {
     private void preventUninstallation(Context context) {
         Log.d(TAG, "Preventing uninstallation of app manager");
         
-        // 使用Dhizuku阻止卸载
-        DhizukuManager dhizukuManager = new DhizukuManager(context);
-        if (dhizukuManager.hasPermission()) {
-            dhizukuManager.executeWithPermission(new DhizukuManager.DhizukuAction() {
-                @Override
-                public Intent getIntent() {
-                    // 重新安装自己的应用
-                    Intent intent = new Intent("android.intent.action.INSTALL_PACKAGE");
-                    intent.setData(android.net.Uri.parse("file:" + context.getPackageCodePath()));
-                    intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-                    return intent;
-                }
-
-                @Override
-                public void onResult(Object result) {
-                    Log.d(TAG, "Successfully prevented uninstallation");
-                }
-
-                @Override
-                public void onError(Exception e) {
-                    Log.e(TAG, "Failed to prevent uninstallation", e);
-                }
-            });
-        }
-
         // 显示拦截界面
         showBlockOverlay(context, "应用卸载已被阻止", "本应用受保护，无法卸载");
     }

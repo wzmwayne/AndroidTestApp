@@ -12,23 +12,19 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
 
 import com.example.testapp.utils.PermissionManager;
-import com.example.testapp.utils.DhizukuManager;
 
 public class PermissionRequestActivity extends AppCompatActivity {
     private PermissionManager permissionManager;
-    private DhizukuManager dhizukuManager;
     
     private CardView overlayCard;
     private CardView usageStatsCard;
     private CardView batteryCard;
     private CardView accessibilityCard;
-    private CardView dhizukuCard;
     
     private TextView overlayStatus;
     private TextView usageStatsStatus;
     private TextView batteryStatus;
     private TextView accessibilityStatus;
-    private TextView dhizukuStatus;
     
     private Button continueButton;
 
@@ -38,7 +34,6 @@ public class PermissionRequestActivity extends AppCompatActivity {
         setContentView(R.layout.activity_permission_request);
 
         permissionManager = new PermissionManager(this);
-        dhizukuManager = new DhizukuManager(this);
         
         initViews();
         updatePermissionStatus();
@@ -50,13 +45,11 @@ public class PermissionRequestActivity extends AppCompatActivity {
         usageStatsCard = findViewById(R.id.usageStatsCard);
         batteryCard = findViewById(R.id.batteryCard);
         accessibilityCard = findViewById(R.id.accessibilityCard);
-        dhizukuCard = findViewById(R.id.dhizukuCard);
         
         overlayStatus = findViewById(R.id.overlayStatus);
         usageStatsStatus = findViewById(R.id.usageStatsStatus);
         batteryStatus = findViewById(R.id.batteryStatus);
         accessibilityStatus = findViewById(R.id.accessibilityStatus);
-        dhizukuStatus = findViewById(R.id.dhizukuStatus);
         
         continueButton = findViewById(R.id.continueButton);
     }
@@ -98,18 +91,8 @@ public class PermissionRequestActivity extends AppCompatActivity {
             accessibilityStatus.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
         }
         
-        // 更新Dhizuku状态
-        if (dhizukuManager.isDhizukuAvailable() && dhizukuManager.hasPermission()) {
-            dhizukuStatus.setText("已授权");
-            dhizukuStatus.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
-        } else {
-            dhizukuStatus.setText("未授权");
-            dhizukuStatus.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
-        }
-        
         // 检查是否可以继续
-        continueButton.setEnabled(permissionManager.hasAllPermissions() && isAccessibilityServiceEnabled() && 
-                               (dhizukuManager.isDhizukuAvailable() && dhizukuManager.hasPermission()));
+        continueButton.setEnabled(permissionManager.hasAllPermissions() && isAccessibilityServiceEnabled());
     }
 
     private void setupClickListeners() {
@@ -137,22 +120,8 @@ public class PermissionRequestActivity extends AppCompatActivity {
             startActivityForResult(intent, 1004);
         });
         
-        dhizukuCard.setOnClickListener(v -> {
-            if (dhizukuManager.isDhizukuAvailable()) {
-                dhizukuManager.requestPermission();
-            } else {
-                Intent intent = dhizukuManager.getDhizukuSettingsIntent();
-                if (intent != null) {
-                    startActivity(intent);
-                } else {
-                    Toast.makeText(this, "请先安装Dhizuku", Toast.LENGTH_SHORT).show();
-                }
-            }
-        });
-        
         continueButton.setOnClickListener(v -> {
-            if (permissionManager.hasAllPermissions() && isAccessibilityServiceEnabled() && 
-                (dhizukuManager.isDhizukuAvailable() && dhizukuManager.hasPermission())) {
+            if (permissionManager.hasAllPermissions() && isAccessibilityServiceEnabled()) {
                 startActivity(new Intent(this, MainActivity.class));
                 finish();
             } else {
