@@ -42,7 +42,7 @@ public class SettingsActivity extends AppCompatActivity {
 
     private void setupClickListeners() {
         changePasswordButton.setOnClickListener(v -> {
-            // 重新设置密码
+            // 重置应用
             passwordManager.setFirstTimeComplete();
             startActivity(new Intent(this, WelcomeActivity.class));
             finish();
