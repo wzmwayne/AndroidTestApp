@@ -65,10 +65,10 @@ public class PasswordManager {
     
     public void setPassword(String password) {
         try {
-            // 使用密码的平方进行加密存储
-            long passwordValue = Long.parseLong(password);
-            long squaredPassword = passwordValue * passwordValue;
-            sharedPreferences.edit().putString(PASSWORD_KEY, String.valueOf(squaredPassword)).apply();
+            // 使用密码的平方进行加密存储，使用BigInteger防止溢出
+            java.math.BigInteger passwordValue = new java.math.BigInteger(password);
+            java.math.BigInteger squaredPassword = passwordValue.multiply(passwordValue);
+            sharedPreferences.edit().putString(PASSWORD_KEY, squaredPassword.toString()).apply();
         } catch (NumberFormatException e) {
             // 如果转换失败，使用原始方法
             try {
@@ -86,10 +86,11 @@ public class PasswordManager {
     public boolean checkPassword(String password) {
         try {
             String savedPassword = sharedPreferences.getString(PASSWORD_KEY, "");
-            long savedPasswordValue = Long.parseLong(savedPassword);
-            long inputPasswordValue = Long.parseLong(password);
-            long squaredInputPassword = inputPasswordValue * inputPasswordValue;
-            return savedPasswordValue == squaredInputPassword;
+            // 使用BigInteger防止溢出
+            java.math.BigInteger savedPasswordValue = new java.math.BigInteger(savedPassword);
+            java.math.BigInteger inputPasswordValue = new java.math.BigInteger(password);
+            java.math.BigInteger squaredInputPassword = inputPasswordValue.multiply(inputPasswordValue);
+            return savedPasswordValue.equals(squaredInputPassword);
         } catch (NumberFormatException e) {
             // 如果转换失败，使用原始比较方法
             String savedPassword = sharedPreferences.getString(PASSWORD_KEY, "");
