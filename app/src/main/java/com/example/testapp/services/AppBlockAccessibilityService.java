@@ -14,7 +14,7 @@ public class AppBlockAccessibilityService extends AccessibilityService {
             String packageName = event.getPackageName() != null ? event.getPackageName().toString() : null;
             
             if (packageName != null) {
-                Log.d(TAG, "Window state changed: " + packageName);
+                Log.d(TAG, "窗口状态改变: " + packageName);
                 
                 // 检查是否需要拦截
                 handleWindowStateChange(packageName);
@@ -91,17 +91,30 @@ public class AppBlockAccessibilityService extends AccessibilityService {
         boolean protectionEnabled = getSharedPreferences("app_prefs", MODE_PRIVATE)
                 .getBoolean("protection_enabled", true);
         
+        // 添加调试日志
+        Log.d(TAG, "检查应用: " + packageName);
+        Log.d(TAG, "保护启用: " + protectionEnabled);
+        Log.d(TAG, "模式: " + (isBlacklistMode ? "黑名单" : "白名单"));
+        Log.d(TAG, "黑名单: " + blockedApps);
+        Log.d(TAG, "白名单: " + whitelistApps);
+        
         if (!protectionEnabled) {
+            Log.d(TAG, "保护未启用，不拦截");
             return false;
         }
         
+        boolean shouldBlock = false;
         if (isBlacklistMode) {
             // 黑名单模式：检查是否在黑名单中
-            return blockedApps.contains(packageName);
+            shouldBlock = blockedApps.contains(packageName);
+            Log.d(TAG, "黑名单模式，是否拦截: " + shouldBlock);
         } else {
             // 白名单模式：检查是否不在白名单中
-            return !whitelistApps.isEmpty() && !whitelistApps.contains(packageName);
+            shouldBlock = !whitelistApps.isEmpty() && !whitelistApps.contains(packageName);
+            Log.d(TAG, "白名单模式，是否拦截: " + shouldBlock);
         }
+        
+        return shouldBlock;
     }
 
     @Override

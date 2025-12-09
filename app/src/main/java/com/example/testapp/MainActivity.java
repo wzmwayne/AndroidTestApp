@@ -689,10 +689,21 @@ public class MainActivity extends android.app.Activity {
         }
         
         String prefKey = isBlacklistMode ? "blacklist_apps" : "whitelist_apps";
+        String savedString = selectedPackages.toString();
+        
         getSharedPreferences("app_prefs", MODE_PRIVATE)
                 .edit()
-                .putString(prefKey, selectedPackages.toString())
+                .putString(prefKey, savedString)
                 .apply();
+        
+        // 验证保存是否成功
+        String verifyString = getSharedPreferences("app_prefs", MODE_PRIVATE)
+                .getString(prefKey, "");
+        
+        android.util.Log.d("MainActivity", "保存模式: " + (isBlacklistMode ? "黑名单" : "白名单"));
+        android.util.Log.d("MainActivity", "保存内容: " + savedString);
+        android.util.Log.d("MainActivity", "验证内容: " + verifyString);
+        android.util.Log.d("MainActivity", "保存是否成功: " + savedString.equals(verifyString));
         
         Toast.makeText(this, "已保存 " + selectedApps.size() + " 个应用", Toast.LENGTH_SHORT).show();
         showMainView();
