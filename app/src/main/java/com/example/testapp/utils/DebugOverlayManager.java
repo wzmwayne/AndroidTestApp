@@ -43,7 +43,7 @@ public class DebugOverlayManager {
         
         // 检查悬浮窗权限
         if (!hasOverlayPermission()) {
-            requestOverlayPermission();
+            Toast.makeText(context, "请先授予悬浮窗权限，然后再次尝试", Toast.LENGTH_LONG).show();
             return;
         }
         
@@ -81,6 +81,15 @@ public class DebugOverlayManager {
         } catch (Exception e) {
             e.printStackTrace();
             Toast.makeText(context, "显示调试窗口失败: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
+    }
+    
+    public void requestOverlayPermission() {
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            context.startActivity(intent);
+            Toast.makeText(context, "请授予悬浮窗权限以显示调试窗口", Toast.LENGTH_LONG).show();
         }
     }
     
@@ -161,15 +170,6 @@ public class DebugOverlayManager {
             return Settings.canDrawOverlays(context);
         }
         return true;
-    }
-    
-    private void requestOverlayPermission() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION);
-            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            context.startActivity(intent);
-            Toast.makeText(context, "请授予悬浮窗权限以显示调试窗口", Toast.LENGTH_LONG).show();
-        }
     }
     
     public void updateDebugInfo(String info) {

@@ -214,19 +214,12 @@ public class WelcomeActivity extends AppCompatActivity {
             finish();
         } catch (Exception e) {
             e.printStackTrace();
-            // 显示调试悬浮窗
-            debugOverlayManager.updateDebugInfo("启动MainActivity失败: " + e.getMessage());
-            debugOverlayManager.showDebugOverlay();
-            
             // 如果启动MainActivity失败，尝试启动权限申请界面
             try {
                 startActivity(new Intent(this, PermissionRequestActivity.class));
                 finish();
             } catch (Exception ex) {
                 ex.printStackTrace();
-                // 显示调试悬浮窗
-                debugOverlayManager.updateDebugInfo("启动PermissionRequestActivity失败: " + ex.getMessage());
-                debugOverlayManager.showDebugOverlay();
                 // 如果都失败，显示错误信息
                 android.widget.Toast.makeText(this, "启动失败，请重试", android.widget.Toast.LENGTH_SHORT).show();
             }
