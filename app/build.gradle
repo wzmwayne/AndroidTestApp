@@ -16,12 +16,21 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
+    android {
+    signingConfigs {
+        release {
+            storeFile file('../keystore/wzmwayne.jks')
+            storePassword 'yuanshenqidong'
+            keyAlias 'wzmwayne'
+            keyPassword 'yuanshenqidong'
+        }
+    }
+    
     buildTypes {
         release {
             minifyEnabled true
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
-            signingConfig signingConfigs.debug
-            debuggable false
+            signingConfig signingConfigs.release
         }
     }
     compileOptions {
