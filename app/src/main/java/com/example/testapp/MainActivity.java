@@ -197,6 +197,11 @@ public class MainActivity extends android.app.Activity {
         basicSettingsTitle.setPadding(0, 20, 0, 10);
         settingsLayout.addView(basicSettingsTitle);
         
+        // 初始化Switch控件
+        protectionSwitch = new Switch(this);
+        autoStartSwitch = new Switch(this);
+        notificationSwitch = new Switch(this);
+        
         // 启用保护
         createSwitchItem(settingsLayout, "启用保护", "开启应用拦截功能", protectionSwitch);
         
@@ -284,26 +289,32 @@ public class MainActivity extends android.app.Activity {
             loadSettings();
         });
 
-        protectionSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            getSharedPreferences("app_prefs", MODE_PRIVATE)
-                    .edit()
-                    .putBoolean("protection_enabled", isChecked)
-                    .apply();
-        });
+        if (protectionSwitch != null) {
+            protectionSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                getSharedPreferences("app_prefs", MODE_PRIVATE)
+                        .edit()
+                        .putBoolean("protection_enabled", isChecked)
+                        .apply();
+            });
+        }
 
-        autoStartSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            getSharedPreferences("app_prefs", MODE_PRIVATE)
-                    .edit()
-                    .putBoolean("auto_start_enabled", isChecked)
-                    .apply();
-        });
+        if (autoStartSwitch != null) {
+            autoStartSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                getSharedPreferences("app_prefs", MODE_PRIVATE)
+                        .edit()
+                        .putBoolean("auto_start_enabled", isChecked)
+                        .apply();
+            });
+        }
 
-        notificationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            getSharedPreferences("app_prefs", MODE_PRIVATE)
-                    .edit()
-                    .putBoolean("notification_enabled", isChecked)
-                    .apply();
-        });
+        if (notificationSwitch != null) {
+            notificationSwitch.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                getSharedPreferences("app_prefs", MODE_PRIVATE)
+                        .edit()
+                        .putBoolean("notification_enabled", isChecked)
+                        .apply();
+            });
+        }
         
         searchInput.addTextChangedListener(new TextWatcher() {
             @Override
@@ -447,16 +458,20 @@ public class MainActivity extends android.app.Activity {
     }
     
     private void loadSettings() {
-        boolean protectionEnabled = getSharedPreferences("app_prefs", MODE_PRIVATE)
-                .getBoolean("protection_enabled", true);
-        boolean autoStartEnabled = getSharedPreferences("app_prefs", MODE_PRIVATE)
-                .getBoolean("auto_start_enabled", true);
-        boolean notificationEnabled = getSharedPreferences("app_prefs", MODE_PRIVATE)
-                .getBoolean("notification_enabled", true);
+        try {
+            boolean protectionEnabled = getSharedPreferences("app_prefs", MODE_PRIVATE)
+                    .getBoolean("protection_enabled", true);
+            boolean autoStartEnabled = getSharedPreferences("app_prefs", MODE_PRIVATE)
+                    .getBoolean("auto_start_enabled", true);
+            boolean notificationEnabled = getSharedPreferences("app_prefs", MODE_PRIVATE)
+                    .getBoolean("notification_enabled", true);
 
-        protectionSwitch.setChecked(protectionEnabled);
-        autoStartSwitch.setChecked(autoStartEnabled);
-        notificationSwitch.setChecked(notificationEnabled);
+            if (protectionSwitch != null) protectionSwitch.setChecked(protectionEnabled);
+            if (autoStartSwitch != null) autoStartSwitch.setChecked(autoStartEnabled);
+            if (notificationSwitch != null) notificationSwitch.setChecked(notificationEnabled);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     
     private void loadApps() {
