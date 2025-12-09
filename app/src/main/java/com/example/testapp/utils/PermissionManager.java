@@ -63,21 +63,26 @@ public class PermissionManager {
     // 检查是否有电池优化豁免权限
     public boolean hasBatteryOptimizationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
-            AppOpsManager appOpsManager = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
-            if (appOpsManager != null) {
-                int mode;
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
-                    mode = appOpsManager.unsafeCheckOpNoThrow(
-                            "android:ignore_battery_optimizations",
-                            android.os.Process.myUid(),
-                            context.getPackageName());
-                } else {
-                    mode = appOpsManager.checkOpNoThrow(
-                            "android:ignore_battery_optimizations",
-                            android.os.Process.myUid(),
-                            context.getPackageName());
+            try {
+                AppOpsManager appOpsManager = (AppOpsManager) context.getSystemService(Context.APP_OPS_SERVICE);
+                if (appOpsManager != null) {
+                    int mode;
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.Q) {
+                        mode = appOpsManager.unsafeCheckOpNoThrow(
+                                AppOpsManager.OPSTR_IGNORE_BATTERY_OPTIMIZATIONS,
+                                android.os.Process.myUid(),
+                                context.getPackageName());
+                    } else {
+                        mode = appOpsManager.checkOpNoThrow(
+                                AppOpsManager.OPSTR_IGNORE_BATTERY_OPTIMIZATIONS,
+                                android.os.Process.myUid(),
+                                context.getPackageName());
+                    }
+                    return mode == AppOpsManager.MODE_ALLOWED;
                 }
-                return mode == AppOpsManager.MODE_ALLOWED;
+            } catch (Exception e) {
+                // 如果检查失败，默认返回true
+                return true;
             }
         }
         return true;
