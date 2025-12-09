@@ -87,31 +87,18 @@ public class AppBlockAccessibilityService extends AccessibilityService {
     }
 
     private void performBlockAction(String packageName) {
-        // 先尝试返回主屏幕
-        goBackToHome();
-        
-        // 检查是否需要显示拦截通知
-        boolean notificationEnabled = getSharedPreferences("app_prefs", MODE_PRIVATE)
-                .getBoolean("notification_enabled", true);
-        
-        if (notificationEnabled) {
-            // 显示拦截界面
-            Intent blockIntent = new Intent(this, BlockOverlayActivity.class);
-            blockIntent.putExtra("package_name", packageName);
-            blockIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(blockIntent);
-        }
+        // 显示悬浮窗黑色全屏覆盖
+        showBlockingOverlay(packageName);
     }
     
-    private void goBackToHome() {
+    private void showBlockingOverlay(String packageName) {
         try {
-            // 返回到主屏幕
-            Intent homeIntent = new Intent(Intent.ACTION_MAIN);
-            homeIntent.addCategory(Intent.CATEGORY_HOME);
-            homeIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            startActivity(homeIntent);
+            // 启动悬浮窗服务显示覆盖层
+            Intent overlayIntent = new Intent(this, BlockOverlayService.class);
+            overlayIntent.putExtra("package_name", packageName);
+            startService(overlayIntent);
         } catch (Exception e) {
-            Log.e(TAG, "Error returning to home", e);
+            Log.e(TAG, "Error showing blocking overlay", e);
         }
     }
 }
