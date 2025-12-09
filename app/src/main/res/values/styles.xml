@@ -2,4 +2,10 @@
     <!-- Base application theme. -->
     <style name="Theme.TestApp" parent="android:Theme.Material.Light">
     </style>
+    
+    <!-- Theme without ActionBar -->
+    <style name="Theme.TestApp.NoActionBar" parent="Theme.TestApp">
+        <item name="android:windowActionBar">false</item>
+        <item name="android:windowNoTitle">true</item>
+    </style>
 </resources>
