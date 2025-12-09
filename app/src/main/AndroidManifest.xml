@@ -29,12 +29,6 @@
             </intent-filter>
         </activity>
             
-        <!-- 应用列表界面 -->
-        <activity
-            android:name=".AppListActivity"
-            android:exported="false"
-            android:theme="@style/Theme.TestApp.NoActionBar" />
-            
         <!-- 拦截界面 -->
         <activity
             android:name=".BlockOverlayActivity"
@@ -43,12 +37,6 @@
             android:excludeFromRecents="true"
             android:showOnLockScreen="true"
             android:turnScreenOn="true"
-            android:theme="@style/Theme.TestApp.NoActionBar" />
-            
-        <!-- 设置界面 -->
-        <activity
-            android:name=".SettingsActivity"
-            android:exported="false"
             android:theme="@style/Theme.TestApp.NoActionBar" />
             
         <!-- 无障碍服务 -->

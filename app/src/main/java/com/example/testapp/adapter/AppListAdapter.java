@@ -1,6 +1,7 @@
 package com.example.testapp.adapter;
 
 import android.content.Context;
+import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -8,90 +9,80 @@ import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import androidx.annotation.NonNull;
-import androidx.core.content.ContextCompat;
-import androidx.recyclerview.widget.RecyclerView;
-
 import com.example.testapp.R;
 import com.example.testapp.model.AppInfo;
 
 import java.util.ArrayList;
 import java.util.List;
 
-public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewHolder> {
+public class AppListAdapter extends android.widget.BaseAdapter {
     private List<AppInfo> appList;
-    private List<AppInfo> filteredAppList;
     private Context context;
-    private OnAppClickListener listener;
+    private LayoutInflater inflater;
 
-    public interface OnAppClickListener {
-        void onAppClick(AppInfo appInfo);
-    }
-
-    public AppListAdapter(Context context, OnAppClickListener listener) {
+    public AppListAdapter(Context context, List<AppInfo> appList) {
         this.context = context;
-        this.listener = listener;
-        this.appList = new ArrayList<>();
-        this.filteredAppList = new ArrayList<>();
+        this.appList = new ArrayList<>(appList);
+        this.inflater = LayoutInflater.from(context);
     }
 
-    public void setAppList(List<AppInfo> appList) {
-        this.appList = appList;
-        this.filteredAppList = new ArrayList<>(appList);
+    public void updateList(List<AppInfo> newList) {
+        this.appList = new ArrayList<>(newList);
         notifyDataSetChanged();
     }
 
-    public void filter(String query) {
-        filteredAppList.clear();
-        if (query == null || query.isEmpty()) {
-            filteredAppList.addAll(appList);
+    @Override
+    public int getCount() {
+        return appList.size();
+    }
+
+    @Override
+    public Object getItem(int position) {
+        return appList.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    @Override
+    public View getView(int position, View convertView, ViewGroup parent) {
+        ViewHolder holder;
+        
+        if (convertView == null) {
+            convertView = inflater.inflate(R.layout.item_app, parent, false);
+            holder = new ViewHolder();
+            holder.icon = convertView.findViewById(R.id.appIcon);
+            holder.appName = convertView.findViewById(R.id.appName);
+            holder.packageName = convertView.findViewById(R.id.packageName);
+            holder.checkBox = convertView.findViewById(R.id.checkBox);
+            convertView.setTag(holder);
         } else {
-            String searchQuery = query.toLowerCase();
-            for (AppInfo app : appList) {
-                if (app.getAppName().toLowerCase().contains(searchQuery) ||
-                    app.getPackageName().toLowerCase().contains(searchQuery)) {
-                    filteredAppList.add(app);
-                }
-            }
+            holder = (ViewHolder) convertView.getTag();
         }
-        notifyDataSetChanged();
-    }
 
-    @NonNull
-    @Override
-    public AppViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-        View view = LayoutInflater.from(context).inflate(R.layout.item_app, parent, false);
-        return new AppViewHolder(view);
-    }
-
-    @Override
-    public void onBindViewHolder(@NonNull AppViewHolder holder, int position) {
-        AppInfo appInfo = filteredAppList.get(position);
+        AppInfo appInfo = appList.get(position);
         
         holder.appName.setText(appInfo.getAppName());
         holder.packageName.setText(appInfo.getPackageName());
         holder.icon.setImageDrawable(appInfo.getIcon());
         holder.checkBox.setChecked(appInfo.isSelected());
         
-        // 系统应用显示不同颜色
-        if (appInfo.isSystemApp()) {
-            holder.packageName.setTextColor(ContextCompat.getColor(context, android.R.color.darker_gray));
-        } else {
-            holder.packageName.setTextColor(ContextCompat.getColor(context, R.color.text_secondary));
-        }
-
-        holder.itemView.setOnClickListener(v -> {
-            if (listener != null) {
-                listener.onAppClick(appInfo);
-            }
+        // 点击事件
+        convertView.setOnClickListener(v -> {
+            appInfo.setSelected(!appInfo.isSelected());
+            holder.checkBox.setChecked(appInfo.isSelected());
         });
-    }
+        
+        holder.checkBox.setOnClickListener(v -> {
+            appInfo.setSelected(!appInfo.isSelected());
+            holder.checkBox.setChecked(appInfo.isSelected());
+        });
 
-    @Override
-    public int getItemCount() {
-        return filteredAppList.size();
+        return convertView;
     }
-
+    
     public List<AppInfo> getSelectedApps() {
         List<AppInfo> selectedApps = new ArrayList<>();
         for (AppInfo app : appList) {
@@ -102,18 +93,10 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewH
         return selectedApps;
     }
 
-    static class AppViewHolder extends RecyclerView.ViewHolder {
+    private static class ViewHolder {
         ImageView icon;
         TextView appName;
         TextView packageName;
         CheckBox checkBox;
-
-        AppViewHolder(@NonNull View itemView) {
-            super(itemView);
-            icon = itemView.findViewById(R.id.appIcon);
-            appName = itemView.findViewById(R.id.appName);
-            packageName = itemView.findViewById(R.id.packageName);
-            checkBox = itemView.findViewById(R.id.checkBox);
-        }
     }
 }
