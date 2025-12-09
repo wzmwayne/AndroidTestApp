@@ -134,6 +134,13 @@ public class MainActivity extends android.app.Activity {
         showSettingsButton.setText("设置");
         mainLayout.addView(showSettingsButton);
         
+        // 查看日志按钮
+        Button viewLogsButton = new Button(this);
+        viewLogsButton.setText("查看调试日志");
+        viewLogsButton.setBackgroundColor(0xFF2196F3);
+        viewLogsButton.setOnClickListener(v -> showDebugLogs());
+        mainLayout.addView(viewLogsButton);
+        
         // 权限状态文本
         permissionStatusText = new TextView(this);
         permissionStatusText.setTextSize(14);
@@ -464,6 +471,40 @@ public class MainActivity extends android.app.Activity {
             startActivity(intent);
         }
         finish();
+    }
+    
+    private void showDebugLogs() {
+        try {
+            // 获取保存的应用列表
+            String blacklistedApps = getSharedPreferences("app_prefs", MODE_PRIVATE)
+                    .getString("blacklist_apps", "无");
+            String whitelistedApps = getSharedPreferences("app_prefs", MODE_PRIVATE)
+                    .getString("whitelist_apps", "无");
+            boolean isBlacklistMode = getSharedPreferences("app_prefs", MODE_PRIVATE)
+                    .getBoolean("is_blacklist_mode", true);
+            boolean protectionEnabled = getSharedPreferences("app_prefs", MODE_PRIVATE)
+                    .getBoolean("protection_enabled", true);
+            
+            // 创建日志内容
+            StringBuilder logContent = new StringBuilder();
+            logContent.append("=== 调试信息 ===\n");
+            logContent.append("保护状态: ").append(protectionEnabled ? "启用" : "禁用").append("\n");
+            logContent.append("拦截模式: ").append(isBlacklistMode ? "黑名单" : "白名单").append("\n");
+            logContent.append("\n=== 应用列表 ===\n");
+            logContent.append("黑名单应用:\n").append(blacklistedApps.isEmpty() ? "无" : blacklistedApps).append("\n\n");
+            logContent.append("白名单应用:\n").append(whitelistedApps.isEmpty() ? "无" : whitelistedApps).append("\n");
+            logContent.append("\n=== 权限状态 ===\n");
+            logContent.append("悬浮窗权限: ").append(permissionManager.hasOverlayPermission() ? "已授予" : "未授予").append("\n");
+            logContent.append("使用情况访问权限: ").append(permissionManager.hasUsageStatsPermission() ? "已授予" : "未授予").append("\n");
+            logContent.append("电池优化豁免权限: ").append(permissionManager.hasBatteryOptimizationPermission() ? "已授予" : "未授予").append("\n");
+            logContent.append("无障碍服务权限: ").append(permissionManager.hasAccessibilityPermission() ? "已授予" : "未授予").append("\n");
+            
+            // 显示日志
+            showErrorScreen("调试信息", logContent.toString());
+            
+        } catch (Exception e) {
+            Toast.makeText(this, "获取日志失败: " + e.getMessage(), Toast.LENGTH_LONG).show();
+        }
     }
 
     private void updateUI() {
