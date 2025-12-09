@@ -55,6 +55,14 @@ public class AppBlockAccessibilityService extends AccessibilityService {
         boolean isBlacklistMode = getSharedPreferences("app_prefs", MODE_PRIVATE)
                 .getBoolean("is_blacklist_mode", true);
         
+        // 检查保护是否启用
+        boolean protectionEnabled = getSharedPreferences("app_prefs", MODE_PRIVATE)
+                .getBoolean("protection_enabled", true);
+        
+        if (!protectionEnabled) {
+            return false;
+        }
+        
         if (isBlacklistMode) {
             // 黑名单模式：检查是否在黑名单中
             return blockedApps.contains(packageName);
@@ -79,12 +87,31 @@ public class AppBlockAccessibilityService extends AccessibilityService {
     }
 
     private void performBlockAction(String packageName) {
-        Log.d(TAG, "Performing block action for: " + packageName);
+        // 先尝试返回主屏幕
+        goBackToHome();
         
-        // 返回主屏幕
-        performGlobalAction(GLOBAL_ACTION_HOME);
+        // 检查是否需要显示拦截通知
+        boolean notificationEnabled = getSharedPreferences("app_prefs", MODE_PRIVATE)
+                .getBoolean("notification_enabled", true);
         
-        // 可以添加其他拦截操作，如显示Toast等
-        // 但注意在无障碍服务中直接显示UI可能有限制
+        if (notificationEnabled) {
+            // 显示拦截界面
+            Intent blockIntent = new Intent(this, BlockOverlayActivity.class);
+            blockIntent.putExtra("package_name", packageName);
+            blockIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(blockIntent);
+        }
+    }
+    
+    private void goBackToHome() {
+        try {
+            // 返回到主屏幕
+            Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+            homeIntent.addCategory(Intent.CATEGORY_HOME);
+            homeIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(homeIntent);
+        } catch (Exception e) {
+            Log.e(TAG, "Error returning to home", e);
+        }
     }
 }
