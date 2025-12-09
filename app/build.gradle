@@ -16,7 +16,6 @@ android {
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
 
-    android {
     signingConfigs {
         release {
             storeFile file('../keystore/wzmwayne.jks')
