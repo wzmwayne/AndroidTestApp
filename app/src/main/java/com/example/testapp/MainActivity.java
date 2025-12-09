@@ -17,6 +17,7 @@ import android.widget.Toast;
 
 import com.example.testapp.model.AppInfo;
 import com.example.testapp.adapter.AppListAdapter;
+import com.example.testapp.utils.PermissionManager;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -42,6 +43,11 @@ public class MainActivity extends android.app.Activity {
     private PackageManager packageManager;
     private List<AppInfo> allApps;
     private AppListAdapter adapter;
+    private PermissionManager permissionManager;
+    
+    // 权限相关UI
+    private TextView permissionStatusText;
+    private Button requestPermissionsButton;
     
     // 设置相关
     private Switch protectionSwitch;
@@ -55,6 +61,7 @@ public class MainActivity extends android.app.Activity {
         super.onCreate(savedInstanceState);
         
         packageManager = getPackageManager();
+        permissionManager = new PermissionManager(this);
         
         createMainLayout();
         createAppListLayout();
@@ -64,6 +71,7 @@ public class MainActivity extends android.app.Activity {
         loadModePreference();
         loadSettings();
         updateUI();
+        updatePermissionStatus();
         
         // 默认显示主界面
         showMainView();
@@ -95,6 +103,18 @@ public class MainActivity extends android.app.Activity {
         showSettingsButton = new Button(this);
         showSettingsButton.setText("设置");
         mainLayout.addView(showSettingsButton);
+        
+        // 权限状态文本
+        permissionStatusText = new TextView(this);
+        permissionStatusText.setTextSize(14);
+        permissionStatusText.setPadding(0, 20, 0, 10);
+        mainLayout.addView(permissionStatusText);
+        
+        // 请求权限按钮
+        requestPermissionsButton = new Button(this);
+        requestPermissionsButton.setText("请求必需权限");
+        requestPermissionsButton.setBackgroundColor(0xFFFF6B6B);
+        mainLayout.addView(requestPermissionsButton);
     }
     
     private void createAppListLayout() {
@@ -242,6 +262,8 @@ public class MainActivity extends android.app.Activity {
         
         hideSettingsButton.setOnClickListener(v -> showMainView());
         
+        requestPermissionsButton.setOnClickListener(v -> requestAllPermissions());
+        
         changePasswordButton.setOnClickListener(v -> {
             // 重置密码
             getSharedPreferences("password_prefs", MODE_PRIVATE).edit().clear().apply();
@@ -315,6 +337,58 @@ public class MainActivity extends android.app.Activity {
         } else {
             modeStatusText.setText("白名单模式：只有选中的应用可以使用");
             toggleModeButton.setText("切换到黑名单模式");
+        }
+    }
+    
+    private void updatePermissionStatus() {
+        boolean hasAllPermissions = permissionManager.hasAllPermissions();
+        
+        if (hasAllPermissions) {
+            permissionStatusText.setText("权限状态：所有必需权限已授予 ✓");
+            permissionStatusText.setTextColor(0xFF4CAF50);
+            requestPermissionsButton.setVisibility(View.GONE);
+        } else {
+            StringBuilder missingPermissions = new StringBuilder("权限状态：缺少必需权限：\n");
+            
+            if (!permissionManager.hasOverlayPermission()) {
+                missingPermissions.append("• 悬浮窗权限\n");
+            }
+            if (!permissionManager.hasUsageStatsPermission()) {
+                missingPermissions.append("• 使用情况访问权限\n");
+            }
+            if (!permissionManager.hasBatteryOptimizationPermission()) {
+                missingPermissions.append("• 电池优化豁免权限\n");
+            }
+            
+            permissionStatusText.setText(missingPermissions.toString());
+            permissionStatusText.setTextColor(0xFFFF6B6B);
+            requestPermissionsButton.setVisibility(View.VISIBLE);
+        }
+    }
+    
+    private void requestAllPermissions() {
+        if (!permissionManager.hasOverlayPermission()) {
+            Intent intent = permissionManager.getOverlayPermissionIntent();
+            if (intent != null) {
+                startActivity(intent);
+                return;
+            }
+        }
+        
+        if (!permissionManager.hasUsageStatsPermission()) {
+            Intent intent = permissionManager.getUsageStatsPermissionIntent();
+            if (intent != null) {
+                startActivity(intent);
+                return;
+            }
+        }
+        
+        if (!permissionManager.hasBatteryOptimizationPermission()) {
+            Intent intent = permissionManager.getBatteryOptimizationPermissionIntent();
+            if (intent != null) {
+                startActivity(intent);
+                return;
+            }
         }
     }
 
@@ -424,6 +498,7 @@ public class MainActivity extends android.app.Activity {
         loadModePreference();
         loadSettings();
         updateUI();
+        updatePermissionStatus();
     }
 
     @Override
