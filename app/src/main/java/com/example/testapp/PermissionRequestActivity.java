@@ -11,6 +11,7 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 
 import com.example.testapp.utils.PermissionManager;
 
@@ -59,37 +60,37 @@ public class PermissionRequestActivity extends AppCompatActivity {
         // 更新悬浮窗权限状态
         if (permissionManager.hasOverlayPermission()) {
             overlayStatus.setText("已授予");
-            overlayStatus.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
+            overlayStatus.setTextColor(ContextCompat.getColor(this, android.R.color.holo_green_dark));
         } else {
             overlayStatus.setText("未授予");
-            overlayStatus.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+            overlayStatus.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark));
         }
         
         // 更新使用情况访问权限状态
         if (permissionManager.hasUsageStatsPermission()) {
             usageStatsStatus.setText("已授予");
-            usageStatsStatus.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
+            usageStatsStatus.setTextColor(ContextCompat.getColor(this, android.R.color.holo_green_dark));
         } else {
             usageStatsStatus.setText("未授予");
-            usageStatsStatus.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+            usageStatsStatus.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark));
         }
         
         // 更新电池优化权限状态
         if (permissionManager.hasBatteryOptimizationPermission()) {
             batteryStatus.setText("已授予");
-            batteryStatus.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
+            batteryStatus.setTextColor(ContextCompat.getColor(this, android.R.color.holo_green_dark));
         } else {
             batteryStatus.setText("未授予");
-            batteryStatus.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+            batteryStatus.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark));
         }
         
         // 更新无障碍服务状态
         if (isAccessibilityServiceEnabled()) {
             accessibilityStatus.setText("已启用");
-            accessibilityStatus.setTextColor(getResources().getColor(android.R.color.holo_green_dark));
+            accessibilityStatus.setTextColor(ContextCompat.getColor(this, android.R.color.holo_green_dark));
         } else {
             accessibilityStatus.setText("未启用");
-            accessibilityStatus.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+            accessibilityStatus.setTextColor(ContextCompat.getColor(this, android.R.color.holo_red_dark));
         }
         
         // 检查是否可以继续

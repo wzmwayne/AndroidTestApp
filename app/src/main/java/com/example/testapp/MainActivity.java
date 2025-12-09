@@ -11,10 +11,12 @@ import android.widget.Toast;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.cardview.widget.CardView;
+import androidx.core.content.ContextCompat;
 
 import com.example.testapp.services.AppMonitorService;
 import com.example.testapp.utils.PasswordManager;
 import com.example.testapp.utils.DebugOverlayManager;
+import com.example.testapp.utils.DebugClickDetector;
 
 public class MainActivity extends AppCompatActivity {
     private PasswordManager passwordManager;
@@ -116,11 +118,11 @@ public class MainActivity extends AppCompatActivity {
 
         // 高亮当前模式
         if (isBlacklistMode) {
-            blacklistCard.setCardBackgroundColor(getResources().getColor(R.color.primary_color));
-            whitelistCard.setCardBackgroundColor(getResources().getColor(R.color.card_background));
+            blacklistCard.setCardBackgroundColor(ContextCompat.getColor(this, R.color.primary_color));
+            whitelistCard.setCardBackgroundColor(ContextCompat.getColor(this, R.color.card_background));
         } else {
-            blacklistCard.setCardBackgroundColor(getResources().getColor(R.color.card_background));
-            whitelistCard.setCardBackgroundColor(getResources().getColor(R.color.primary_color));
+            blacklistCard.setCardBackgroundColor(ContextCompat.getColor(this, R.color.card_background));
+            whitelistCard.setCardBackgroundColor(ContextCompat.getColor(this, R.color.primary_color));
         }
     }
 

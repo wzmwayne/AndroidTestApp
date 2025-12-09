@@ -9,6 +9,7 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.testapp.R;
@@ -74,9 +75,9 @@ public class AppListAdapter extends RecyclerView.Adapter<AppListAdapter.AppViewH
         
         // 系统应用显示不同颜色
         if (appInfo.isSystemApp()) {
-            holder.packageName.setTextColor(context.getResources().getColor(android.R.color.darker_gray));
+            holder.packageName.setTextColor(ContextCompat.getColor(context, android.R.color.darker_gray));
         } else {
-            holder.packageName.setTextColor(context.getResources().getColor(R.color.text_secondary));
+            holder.packageName.setTextColor(ContextCompat.getColor(context, R.color.text_secondary));
         }
 
         holder.itemView.setOnClickListener(v -> {
