@@ -169,9 +169,15 @@ public class MainActivity extends android.app.Activity {
         
         appListLayout.addView(titleLayout);
         
+        // 保存按钮（移到顶部）
+        Button saveButton = new Button(this);
+        saveButton.setText("保存选择");
+        saveButton.setBackgroundColor(0xFF4CAF50);
+        appListLayout.addView(saveButton);
+        
         // 搜索框
         searchInput = new EditText(this);
-        searchInput.setHint("搜索应用");
+        searchInput.setHint("搜索用户安装的应用");
         appListLayout.addView(searchInput);
         
         // 进度条
@@ -182,11 +188,6 @@ public class MainActivity extends android.app.Activity {
         // 应用列表
         appListView = new android.widget.ListView(this);
         appListLayout.addView(appListView);
-        
-        // 保存按钮
-        Button saveButton = new Button(this);
-        saveButton.setText("保存选择");
-        appListLayout.addView(saveButton);
         
         saveButton.setOnClickListener(v -> saveSelectedApps());
     }
@@ -500,6 +501,9 @@ public class MainActivity extends android.app.Activity {
                     if (!permissionManager.hasBatteryOptimizationPermission()) {
                         missingPermissions.append("• 电池优化豁免权限\n");
                     }
+                    if (!permissionManager.hasAccessibilityPermission()) {
+                        missingPermissions.append("• 无障碍服务权限\n");
+                    }
                     
                     permissionStatusText.setText(missingPermissions.toString());
                     permissionStatusText.setTextColor(0xFFFF6B6B);
@@ -536,6 +540,14 @@ public class MainActivity extends android.app.Activity {
             
             if (!permissionManager.hasBatteryOptimizationPermission()) {
                 Intent intent = permissionManager.getBatteryOptimizationPermissionIntent();
+                if (intent != null) {
+                    startActivity(intent);
+                    return;
+                }
+            }
+            
+            if (!permissionManager.hasAccessibilityPermission()) {
+                Intent intent = permissionManager.getAccessibilityPermissionIntent();
                 if (intent != null) {
                     startActivity(intent);
                     return;
@@ -592,6 +604,11 @@ public class MainActivity extends android.app.Activity {
                             try {
                                 // 排除本应用
                                 if (getPackageName() != null && getPackageName().equals(appInfo.packageName)) {
+                                    continue;
+                                }
+                                
+                                // 只显示用户安装的应用，排除系统应用
+                                if ((appInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0) {
                                     continue;
                                 }
                                 

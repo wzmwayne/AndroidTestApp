@@ -34,8 +34,34 @@ public class AppBlockAccessibilityService extends AccessibilityService {
     }
 
     private void handleWindowStateChange(String packageName) {
-        // 这里可以添加额外的窗口状态检测逻辑
-        // 主要的拦截逻辑在AppMonitorService中处理
+        // 实时检测前台应用
+        try {
+            // 检查是否需要拦截该应用
+            if (shouldBlockApp(packageName)) {
+                Log.d(TAG, "Blocking app: " + packageName);
+                performBlockAction(packageName);
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error handling window state change", e);
+        }
+    }
+    
+    private boolean shouldBlockApp(String packageName) {
+        // 获取拦截列表
+        String blockedApps = getSharedPreferences("app_prefs", MODE_PRIVATE)
+                .getString("blacklist_apps", "");
+        String whitelistApps = getSharedPreferences("app_prefs", MODE_PRIVATE)
+                .getString("whitelist_apps", "");
+        boolean isBlacklistMode = getSharedPreferences("app_prefs", MODE_PRIVATE)
+                .getBoolean("is_blacklist_mode", true);
+        
+        if (isBlacklistMode) {
+            // 黑名单模式：检查是否在黑名单中
+            return blockedApps.contains(packageName);
+        } else {
+            // 白名单模式：检查是否不在白名单中
+            return !whitelistApps.isEmpty() && !whitelistApps.contains(packageName);
+        }
     }
 
     @Override

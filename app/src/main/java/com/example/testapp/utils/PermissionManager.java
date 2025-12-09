@@ -1,5 +1,6 @@
 package com.example.testapp.utils;
 
+import android.accessibilityservice.AccessibilityServiceInfo;
 import android.app.AppOpsManager;
 import android.content.Context;
 import android.content.Intent;
@@ -7,6 +8,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.provider.Settings;
 import android.text.TextUtils;
+import android.view.accessibility.AccessibilityManager;
 
 public class PermissionManager {
     private Context context;
@@ -101,10 +103,68 @@ public class PermissionManager {
         return null;
     }
     
+    // 检查是否有无障碍服务权限
+    public boolean hasAccessibilityPermission() {
+        try {
+            AccessibilityManager accessibilityManager = (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
+            if (accessibilityManager != null) {
+                for (AccessibilityServiceInfo serviceInfo : accessibilityManager.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK)) {
+                    if (serviceInfo.getResolveInfo().serviceInfo.packageName.equals(context.getPackageName())) {
+                        return true;
+                    }
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+    
+    // 请求无障碍服务权限
+    public Intent getAccessibilityPermissionIntent() {
+        return new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+    }
+    
+    // 检查是否有无障碍服务权限
+    public boolean hasAccessibilityPermission() {
+        int accessibilityEnabled = 0;
+        try {
+            accessibilityEnabled = Settings.Secure.getInt(context.getContentResolver(),
+                    Settings.Secure.ACCESSIBILITY_ENABLED);
+        } catch (Settings.SettingNotFoundException e) {
+            return false;
+        }
+
+        if (accessibilityEnabled == 1) {
+            String service = context.getPackageName() + "/" + 
+                           com.example.testapp.services.AppBlockAccessibilityService.class.getCanonicalName();
+            TextUtils.SimpleStringSplitter splitter = new TextUtils.SimpleStringSplitter(':');
+            String settingValue = Settings.Secure.getString(context.getContentResolver(),
+                    Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
+            if (settingValue != null) {
+                splitter.setString(settingValue);
+                while (splitter.hasNext()) {
+                    String accessibilityService = splitter.next();
+                    if (accessibilityService.equalsIgnoreCase(service)) {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+    
+    // 请求无障碍服务权限
+    public Intent getAccessibilityPermissionIntent() {
+        return new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+    }
+    
     // 检查是否有所需权限
     public boolean hasAllPermissions() {
         return hasOverlayPermission() && 
                hasUsageStatsPermission() && 
-               hasBatteryOptimizationPermission();
+               hasBatteryOptimizationPermission() &&
+               hasAccessibilityPermission();
     }
+}
 }
