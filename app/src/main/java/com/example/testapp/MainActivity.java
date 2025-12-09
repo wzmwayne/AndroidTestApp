@@ -16,6 +16,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.testapp.model.AppInfo;
+import com.example.testapp.adapter.AppListAdapter;
 
 import java.util.ArrayList;
 import java.util.Collections;
