@@ -73,10 +73,15 @@
 
                     <!-- 悬浮窗权限 -->
                     <LinearLayout
+                        android:id="@+id/overlayPermissionItem"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
+                        android:layout_marginBottom="8dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:padding="8dp">
 
                         <TextView
                             android:layout_width="0dp"
@@ -98,10 +103,15 @@
 
                     <!-- 使用情况访问权限 -->
                     <LinearLayout
+                        android:id="@+id/usageAccessItem"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
+                        android:layout_marginBottom="8dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:padding="8dp">
 
                         <TextView
                             android:layout_width="0dp"
@@ -123,10 +133,15 @@
 
                     <!-- 电池优化权限 -->
                     <LinearLayout
+                        android:id="@+id/batteryOptimizationItem"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:orientation="horizontal"
-                        android:layout_marginBottom="8dp">
+                        android:layout_marginBottom="8dp"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:padding="8dp">
 
                         <TextView
                             android:layout_width="0dp"
@@ -148,9 +163,14 @@
 
                     <!-- 无障碍服务 -->
                     <LinearLayout
+                        android:id="@+id/accessibilityServiceItem"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:orientation="horizontal">
+                        android:orientation="horizontal"
+                        android:clickable="true"
+                        android:focusable="true"
+                        android:background="?android:attr/selectableItemBackground"
+                        android:padding="8dp">
 
                         <TextView
                             android:layout_width="0dp"
