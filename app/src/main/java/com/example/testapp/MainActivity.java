@@ -3,6 +3,7 @@ package com.example.testapp;
 import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.view.View;
 import android.widget.Button;
 import android.widget.TextView;
@@ -13,9 +14,11 @@ import androidx.cardview.widget.CardView;
 
 import com.example.testapp.services.AppMonitorService;
 import com.example.testapp.utils.PasswordManager;
+import com.example.testapp.utils.DebugOverlayManager;
 
 public class MainActivity extends AppCompatActivity {
     private PasswordManager passwordManager;
+    private DebugOverlayManager debugOverlayManager;
     
     private CardView blacklistCard;
     private CardView whitelistCard;
@@ -25,6 +28,12 @@ public class MainActivity extends AppCompatActivity {
     private Button settingsButton;
     
     private boolean isBlacklistMode = true; // 默认黑名单模式
+    
+    // 左上角连击检测
+    private long lastTouchTime = 0;
+    private int touchCount = 0;
+    private static final int REQUIRED_TOUCHES = 5;
+    private static final long TOUCH_TIMEOUT = 2000; // 2秒内
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -32,6 +41,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         passwordManager = new PasswordManager(this);
+        debugOverlayManager = DebugOverlayManager.getInstance(this);
         
         initViews();
         setupClickListeners();
@@ -153,6 +163,37 @@ public class MainActivity extends AppCompatActivity {
             e.printStackTrace();
             // 服务启动失败时不影响应用正常运行
         }
+    }
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        // 检测左上角连击
+        if (ev.getAction() == MotionEvent.ACTION_DOWN) {
+            float x = ev.getX();
+            float y = ev.getY();
+            
+            // 检查是否在左上角区域（100x100像素）
+            if (x <= 100 && y <= 100) {
+                long currentTime = System.currentTimeMillis();
+                
+                if (currentTime - lastTouchTime > TOUCH_TIMEOUT) {
+                    touchCount = 1;
+                } else {
+                    touchCount++;
+                }
+                
+                lastTouchTime = currentTime;
+                
+                if (touchCount >= REQUIRED_TOUCHES) {
+                    // 显示调试悬浮窗
+                    debugOverlayManager.showDebugOverlay();
+                    Toast.makeText(this, "调试面板已开启", Toast.LENGTH_SHORT).show();
+                    touchCount = 0;
+                }
+            }
+        }
+        
+        return super.dispatchTouchEvent(ev);
     }
 
     @Override
