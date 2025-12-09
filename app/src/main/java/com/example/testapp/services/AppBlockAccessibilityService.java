@@ -36,6 +36,16 @@ public class AppBlockAccessibilityService extends AccessibilityService {
     private void handleWindowStateChange(String packageName) {
         // 实时检测前台应用
         try {
+            // 确保自身不被拦截
+            if (packageName.equals(getPackageName())) {
+                return;
+            }
+            
+            // 确保系统应用不被拦截
+            if (isSystemApp(packageName)) {
+                return;
+            }
+            
             // 检查是否需要拦截该应用
             if (shouldBlockApp(packageName)) {
                 Log.d(TAG, "Blocking app: " + packageName);
@@ -46,7 +56,29 @@ public class AppBlockAccessibilityService extends AccessibilityService {
         }
     }
     
+    private boolean isSystemApp(String packageName) {
+        try {
+            android.content.pm.ApplicationInfo appInfo = getPackageManager().getApplicationInfo(packageName, 0);
+            return (appInfo.flags & android.content.pm.ApplicationInfo.FLAG_SYSTEM) != 0;
+        } catch (Exception e) {
+            return true; // 如果无法确定，默认为系统应用
+        }
+    }
+    
     private boolean shouldBlockApp(String packageName) {
+        // 不拦截自身应用
+        if (getPackageName().equals(packageName)) {
+            return false;
+        }
+        
+        // 不拦截系统应用和系统界面
+        if (packageName.equals("com.android.systemui") ||
+            packageName.equals("com.android.launcher3") ||
+            packageName.startsWith("com.android.") ||
+            packageName.equals("android")) {
+            return false;
+        }
+        
         // 获取拦截列表
         String blockedApps = getSharedPreferences("app_prefs", MODE_PRIVATE)
                 .getString("blacklist_apps", "");

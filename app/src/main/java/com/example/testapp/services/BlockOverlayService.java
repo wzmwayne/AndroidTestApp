@@ -39,6 +39,9 @@ public class BlockOverlayService extends Service {
 
     private void showOverlay() {
         try {
+            // 先返回主屏幕
+            goBackToHome();
+            
             // 创建覆盖层布局参数
             WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                     WindowManager.LayoutParams.MATCH_PARENT,
@@ -107,6 +110,18 @@ public class BlockOverlayService extends Service {
         } catch (Exception e) {
             Log.e(TAG, "Error showing overlay", e);
             stopSelf();
+        }
+    }
+    
+    private void goBackToHome() {
+        try {
+            // 返回到主屏幕
+            Intent homeIntent = new Intent(Intent.ACTION_MAIN);
+            homeIntent.addCategory(Intent.CATEGORY_HOME);
+            homeIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+            startActivity(homeIntent);
+        } catch (Exception e) {
+            Log.e(TAG, "Error returning to home", e);
         }
     }
 
