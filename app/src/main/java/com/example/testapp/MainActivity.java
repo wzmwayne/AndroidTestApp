@@ -1,5 +1,8 @@
 package com.example.testapp;
 
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -36,9 +39,16 @@ public class MainActivity extends android.app.Activity {
     private LinearLayout mainLayout;
     private LinearLayout appListLayout;
     private LinearLayout settingsLayout;
+    private LinearLayout errorLayout;
     private EditText searchInput;
     private ProgressBar progressBar;
     private android.widget.ListView appListView;
+    
+    // 错误界面相关
+    private TextView errorText;
+    private Button copyErrorButton;
+    private Button restartButton;
+    private String currentError = "";
     
     private boolean isBlacklistMode = true;
     private PackageManager packageManager;
@@ -65,9 +75,23 @@ public class MainActivity extends android.app.Activity {
             packageManager = getPackageManager();
             permissionManager = new PermissionManager(this);
             
+            // 创建根布局
+            LinearLayout rootLayout = new LinearLayout(this);
+            rootLayout.setOrientation(LinearLayout.VERTICAL);
+            
             createMainLayout();
             createAppListLayout();
             createSettingsLayout();
+            createErrorLayout();
+            
+            // 将所有子布局添加到根布局
+            rootLayout.addView(mainLayout);
+            rootLayout.addView(appListLayout);
+            rootLayout.addView(settingsLayout);
+            rootLayout.addView(errorLayout);
+            
+            // 设置根布局为内容视图
+            setContentView(rootLayout);
             
             setupClickListeners();
             loadModePreference();
@@ -79,8 +103,7 @@ public class MainActivity extends android.app.Activity {
             showMainView();
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(this, "应用启动出错：" + e.getMessage(), Toast.LENGTH_LONG).show();
-            finish();
+            showErrorScreen("应用启动出错：" + e.getMessage());
         }
     }
     
@@ -227,6 +250,46 @@ public class MainActivity extends android.app.Activity {
         settingsLayout.addView(resetButton);
     }
     
+    private void createErrorLayout() {
+        errorLayout = new LinearLayout(this);
+        errorLayout.setOrientation(LinearLayout.VERTICAL);
+        errorLayout.setPadding(16, 16, 16, 16);
+        errorLayout.setVisibility(View.GONE);
+        
+        // 错误标题
+        TextView errorTitle = new TextView(this);
+        errorTitle.setText("发生错误");
+        errorTitle.setTextSize(20);
+        errorTitle.setPadding(0, 0, 0, 20);
+        errorLayout.addView(errorTitle);
+        
+        // 错误信息文本框
+        errorText = new TextView(this);
+        errorText.setTextSize(14);
+        errorText.setBackgroundColor(0xFFFFF0F0);
+        errorText.setPadding(16, 16, 16, 16);
+        errorText.setTextColor(0xFFD32F2F);
+        errorText.setMaxHeight(300);
+        errorLayout.addView(errorText);
+        
+        // 按钮容器
+        LinearLayout buttonLayout = new LinearLayout(this);
+        buttonLayout.setOrientation(LinearLayout.HORIZONTAL);
+        buttonLayout.setPadding(0, 20, 0, 0);
+        
+        // 复制错误按钮
+        copyErrorButton = new Button(this);
+        copyErrorButton.setText("复制错误信息");
+        buttonLayout.addView(copyErrorButton);
+        
+        // 重启按钮
+        restartButton = new Button(this);
+        restartButton.setText("重启应用");
+        buttonLayout.addView(restartButton);
+        
+        errorLayout.addView(buttonLayout);
+    }
+    
     private void createSwitchItem(LinearLayout parent, String title, String summary, Switch switchView) {
         LinearLayout itemLayout = new LinearLayout(this);
         itemLayout.setOrientation(LinearLayout.VERTICAL);
@@ -275,6 +338,10 @@ public class MainActivity extends android.app.Activity {
         hideSettingsButton.setOnClickListener(v -> showMainView());
         
         requestPermissionsButton.setOnClickListener(v -> requestAllPermissions());
+        
+        // 错误界面按钮点击事件
+        copyErrorButton.setOnClickListener(v -> copyErrorToClipboard());
+        restartButton.setOnClickListener(v -> restartApp());
         
         changePasswordButton.setOnClickListener(v -> {
             // 重置密码
@@ -359,6 +426,44 @@ public class MainActivity extends android.app.Activity {
             e.printStackTrace();
         }
     }
+    
+    private void showErrorScreen(String errorMessage) {
+        currentError = errorMessage;
+        try {
+            if (mainLayout != null) mainLayout.setVisibility(View.GONE);
+            if (appListLayout != null) appListLayout.setVisibility(View.GONE);
+            if (settingsLayout != null) settingsLayout.setVisibility(View.GONE);
+            if (errorLayout != null) {
+                errorLayout.setVisibility(View.VISIBLE);
+                if (errorText != null) {
+                    errorText.setText(errorMessage);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+    
+    private void copyErrorToClipboard() {
+        try {
+            ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+            ClipData clip = ClipData.newPlainText("错误信息", currentError);
+            clipboard.setPrimaryClip(clip);
+            Toast.makeText(this, "错误信息已复制到剪贴板", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(this, "复制失败：" + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
+    }
+    
+    private void restartApp() {
+        Intent intent = getBaseContext().getPackageManager()
+                .getLaunchIntentForPackage(getBaseContext().getPackageName());
+        if (intent != null) {
+            intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+            startActivity(intent);
+        }
+        finish();
+    }
 
     private void updateUI() {
         if (isBlacklistMode) {
@@ -403,10 +508,7 @@ public class MainActivity extends android.app.Activity {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            if (permissionStatusText != null) {
-                permissionStatusText.setText("权限检查出错");
-                permissionStatusText.setTextColor(0xFFFF6B6B);
-            }
+            showErrorScreen("权限检查出错：" + e.getMessage());
         }
     }
     
@@ -441,7 +543,7 @@ public class MainActivity extends android.app.Activity {
             }
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(this, "打开权限设置出错：" + e.getMessage(), Toast.LENGTH_SHORT).show();
+            showErrorScreen("打开权限设置出错：" + e.getMessage());
         }
     }
 
@@ -589,7 +691,7 @@ public class MainActivity extends android.app.Activity {
             updatePermissionStatus();
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(this, "应用恢复出错：" + e.getMessage(), Toast.LENGTH_SHORT).show();
+            showErrorScreen("应用恢复出错：" + e.getMessage());
         }
     }
 
