@@ -105,28 +105,6 @@ public class PermissionManager {
     
     // 检查是否有无障碍服务权限
     public boolean hasAccessibilityPermission() {
-        try {
-            AccessibilityManager accessibilityManager = (AccessibilityManager) context.getSystemService(Context.ACCESSIBILITY_SERVICE);
-            if (accessibilityManager != null) {
-                for (AccessibilityServiceInfo serviceInfo : accessibilityManager.getEnabledAccessibilityServiceList(AccessibilityServiceInfo.FEEDBACK_ALL_MASK)) {
-                    if (serviceInfo.getResolveInfo().serviceInfo.packageName.equals(context.getPackageName())) {
-                        return true;
-                    }
-                }
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return false;
-    }
-    
-    // 请求无障碍服务权限
-    public Intent getAccessibilityPermissionIntent() {
-        return new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
-    }
-    
-    // 检查是否有无障碍服务权限
-    public boolean hasAccessibilityPermission() {
         int accessibilityEnabled = 0;
         try {
             accessibilityEnabled = Settings.Secure.getInt(context.getContentResolver(),
@@ -152,6 +130,11 @@ public class PermissionManager {
             }
         }
         return false;
+    }
+    
+    // 请求无障碍服务权限
+    public Intent getAccessibilityPermissionIntent() {
+        return new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
     }
     
     // 检查是否有所需权限
