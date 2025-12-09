@@ -61,21 +61,27 @@ public class MainActivity extends android.app.Activity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         
-        packageManager = getPackageManager();
-        permissionManager = new PermissionManager(this);
-        
-        createMainLayout();
-        createAppListLayout();
-        createSettingsLayout();
-        
-        setupClickListeners();
-        loadModePreference();
-        loadSettings();
-        updateUI();
-        updatePermissionStatus();
-        
-        // 默认显示主界面
-        showMainView();
+        try {
+            packageManager = getPackageManager();
+            permissionManager = new PermissionManager(this);
+            
+            createMainLayout();
+            createAppListLayout();
+            createSettingsLayout();
+            
+            setupClickListeners();
+            loadModePreference();
+            loadSettings();
+            updateUI();
+            updatePermissionStatus();
+            
+            // 默认显示主界面
+            showMainView();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "应用启动出错：" + e.getMessage(), Toast.LENGTH_LONG).show();
+            finish();
+        }
     }
     
     private void createMainLayout() {
@@ -314,21 +320,33 @@ public class MainActivity extends android.app.Activity {
     }
     
     private void showMainView() {
-        mainLayout.setVisibility(View.VISIBLE);
-        appListLayout.setVisibility(View.GONE);
-        settingsLayout.setVisibility(View.GONE);
+        try {
+            if (mainLayout != null) mainLayout.setVisibility(View.VISIBLE);
+            if (appListLayout != null) appListLayout.setVisibility(View.GONE);
+            if (settingsLayout != null) settingsLayout.setVisibility(View.GONE);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     
     private void showAppListView() {
-        mainLayout.setVisibility(View.GONE);
-        appListLayout.setVisibility(View.VISIBLE);
-        settingsLayout.setVisibility(View.GONE);
+        try {
+            if (mainLayout != null) mainLayout.setVisibility(View.GONE);
+            if (appListLayout != null) appListLayout.setVisibility(View.VISIBLE);
+            if (settingsLayout != null) settingsLayout.setVisibility(View.GONE);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
     
     private void showSettingsView() {
-        mainLayout.setVisibility(View.GONE);
-        appListLayout.setVisibility(View.GONE);
-        settingsLayout.setVisibility(View.VISIBLE);
+        try {
+            if (mainLayout != null) mainLayout.setVisibility(View.GONE);
+            if (appListLayout != null) appListLayout.setVisibility(View.GONE);
+            if (settingsLayout != null) settingsLayout.setVisibility(View.VISIBLE);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
 
     private void updateUI() {
@@ -342,54 +360,77 @@ public class MainActivity extends android.app.Activity {
     }
     
     private void updatePermissionStatus() {
-        boolean hasAllPermissions = permissionManager.hasAllPermissions();
-        
-        if (hasAllPermissions) {
-            permissionStatusText.setText("权限状态：所有必需权限已授予 ✓");
-            permissionStatusText.setTextColor(0xFF4CAF50);
-            requestPermissionsButton.setVisibility(View.GONE);
-        } else {
-            StringBuilder missingPermissions = new StringBuilder("权限状态：缺少必需权限：\n");
-            
-            if (!permissionManager.hasOverlayPermission()) {
-                missingPermissions.append("• 悬浮窗权限\n");
-            }
-            if (!permissionManager.hasUsageStatsPermission()) {
-                missingPermissions.append("• 使用情况访问权限\n");
-            }
-            if (!permissionManager.hasBatteryOptimizationPermission()) {
-                missingPermissions.append("• 电池优化豁免权限\n");
+        try {
+            if (permissionManager == null) {
+                permissionManager = new PermissionManager(this);
             }
             
-            permissionStatusText.setText(missingPermissions.toString());
-            permissionStatusText.setTextColor(0xFFFF6B6B);
-            requestPermissionsButton.setVisibility(View.VISIBLE);
+            boolean hasAllPermissions = permissionManager.hasAllPermissions();
+            
+            if (permissionStatusText != null && requestPermissionsButton != null) {
+                if (hasAllPermissions) {
+                    permissionStatusText.setText("权限状态：所有必需权限已授予 ✓");
+                    permissionStatusText.setTextColor(0xFF4CAF50);
+                    requestPermissionsButton.setVisibility(View.GONE);
+                } else {
+                    StringBuilder missingPermissions = new StringBuilder("权限状态：缺少必需权限：\n");
+                    
+                    if (!permissionManager.hasOverlayPermission()) {
+                        missingPermissions.append("• 悬浮窗权限\n");
+                    }
+                    if (!permissionManager.hasUsageStatsPermission()) {
+                        missingPermissions.append("• 使用情况访问权限\n");
+                    }
+                    if (!permissionManager.hasBatteryOptimizationPermission()) {
+                        missingPermissions.append("• 电池优化豁免权限\n");
+                    }
+                    
+                    permissionStatusText.setText(missingPermissions.toString());
+                    permissionStatusText.setTextColor(0xFFFF6B6B);
+                    requestPermissionsButton.setVisibility(View.VISIBLE);
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            if (permissionStatusText != null) {
+                permissionStatusText.setText("权限检查出错");
+                permissionStatusText.setTextColor(0xFFFF6B6B);
+            }
         }
     }
     
     private void requestAllPermissions() {
-        if (!permissionManager.hasOverlayPermission()) {
-            Intent intent = permissionManager.getOverlayPermissionIntent();
-            if (intent != null) {
-                startActivity(intent);
-                return;
+        try {
+            if (permissionManager == null) {
+                permissionManager = new PermissionManager(this);
             }
-        }
-        
-        if (!permissionManager.hasUsageStatsPermission()) {
-            Intent intent = permissionManager.getUsageStatsPermissionIntent();
-            if (intent != null) {
-                startActivity(intent);
-                return;
+            
+            if (!permissionManager.hasOverlayPermission()) {
+                Intent intent = permissionManager.getOverlayPermissionIntent();
+                if (intent != null) {
+                    startActivity(intent);
+                    return;
+                }
             }
-        }
-        
-        if (!permissionManager.hasBatteryOptimizationPermission()) {
-            Intent intent = permissionManager.getBatteryOptimizationPermissionIntent();
-            if (intent != null) {
-                startActivity(intent);
-                return;
+            
+            if (!permissionManager.hasUsageStatsPermission()) {
+                Intent intent = permissionManager.getUsageStatsPermissionIntent();
+                if (intent != null) {
+                    startActivity(intent);
+                    return;
+                }
             }
+            
+            if (!permissionManager.hasBatteryOptimizationPermission()) {
+                Intent intent = permissionManager.getBatteryOptimizationPermissionIntent();
+                if (intent != null) {
+                    startActivity(intent);
+                    return;
+                }
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "打开权限设置出错：" + e.getMessage(), Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -419,35 +460,65 @@ public class MainActivity extends android.app.Activity {
     }
     
     private void loadApps() {
-        progressBar.setVisibility(View.VISIBLE);
+        if (progressBar != null) {
+            progressBar.setVisibility(View.VISIBLE);
+        }
         
         new Thread(() -> {
-            List<AppInfo> apps = new ArrayList<>();
-            List<ApplicationInfo> installedApps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA);
-            
-            for (ApplicationInfo appInfo : installedApps) {
-                // 排除本应用
-                if (appInfo.packageName.equals(getPackageName())) {
-                    continue;
+            try {
+                List<AppInfo> apps = new ArrayList<>();
+                if (packageManager != null) {
+                    List<ApplicationInfo> installedApps = packageManager.getInstalledApplications(PackageManager.GET_META_DATA);
+                    
+                    if (installedApps != null) {
+                        for (ApplicationInfo appInfo : installedApps) {
+                            try {
+                                // 排除本应用
+                                if (getPackageName() != null && getPackageName().equals(appInfo.packageName)) {
+                                    continue;
+                                }
+                                
+                                String appName = packageManager.getApplicationLabel(appInfo).toString();
+                                Drawable icon = packageManager.getApplicationIcon(appInfo);
+                                boolean isSystemApp = (appInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
+                                
+                                AppInfo app = new AppInfo(appInfo.packageName, appName, icon, isSystemApp);
+                                apps.add(app);
+                            } catch (Exception e) {
+                                // 跳过有问题的应用
+                                continue;
+                            }
+                        }
+                    }
                 }
                 
-                String appName = packageManager.getApplicationLabel(appInfo).toString();
-                Drawable icon = packageManager.getApplicationIcon(appInfo);
-                boolean isSystemApp = (appInfo.flags & ApplicationInfo.FLAG_SYSTEM) != 0;
+                // 按应用名排序
+                Collections.sort(apps, Comparator.comparing(AppInfo::getAppName, String.CASE_INSENSITIVE_ORDER));
                 
-                AppInfo app = new AppInfo(appInfo.packageName, appName, icon, isSystemApp);
-                apps.add(app);
+                runOnUiThread(() -> {
+                    allApps = apps;
+                    try {
+                        adapter = new AppListAdapter(this, apps);
+                        if (appListView != null) {
+                            appListView.setAdapter(adapter);
+                        }
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        Toast.makeText(this, "加载应用列表出错：" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    }
+                    if (progressBar != null) {
+                        progressBar.setVisibility(View.GONE);
+                    }
+                });
+            } catch (Exception e) {
+                runOnUiThread(() -> {
+                    e.printStackTrace();
+                    Toast.makeText(this, "加载应用列表出错：" + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    if (progressBar != null) {
+                        progressBar.setVisibility(View.GONE);
+                    }
+                });
             }
-            
-            // 按应用名排序
-            Collections.sort(apps, Comparator.comparing(AppInfo::getAppName, String.CASE_INSENSITIVE_ORDER));
-            
-            runOnUiThread(() -> {
-                allApps = apps;
-                adapter = new AppListAdapter(this, apps);
-                appListView.setAdapter(adapter);
-                progressBar.setVisibility(View.GONE);
-            });
         }).start();
     }
     
@@ -496,10 +567,15 @@ public class MainActivity extends android.app.Activity {
     @Override
     protected void onResume() {
         super.onResume();
-        loadModePreference();
-        loadSettings();
-        updateUI();
-        updatePermissionStatus();
+        try {
+            loadModePreference();
+            loadSettings();
+            updateUI();
+            updatePermissionStatus();
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toast.makeText(this, "应用恢复出错：" + e.getMessage(), Toast.LENGTH_SHORT).show();
+        }
     }
 
     @Override
