@@ -154,11 +154,6 @@ public class PermissionManager {
         return false;
     }
     
-    // 请求无障碍服务权限
-    public Intent getAccessibilityPermissionIntent() {
-        return new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
-    }
-    
     // 检查是否有所需权限
     public boolean hasAllPermissions() {
         return hasOverlayPermission() && 
