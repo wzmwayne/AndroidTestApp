@@ -500,7 +500,7 @@ public class MainActivity extends android.app.Activity {
             logContent.append("无障碍服务权限: ").append(permissionManager.hasAccessibilityPermission() ? "已授予" : "未授予").append("\n");
             
             // 显示日志
-            showErrorScreen("调试信息", logContent.toString());
+            showErrorScreen("调试信息\n\n" + logContent.toString());
             
         } catch (Exception e) {
             Toast.makeText(this, "获取日志失败: " + e.getMessage(), Toast.LENGTH_LONG).show();
