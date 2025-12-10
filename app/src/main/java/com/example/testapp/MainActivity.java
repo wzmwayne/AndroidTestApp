@@ -7,7 +7,9 @@ import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
@@ -22,6 +24,7 @@ import android.widget.Toast;
 import com.example.testapp.model.AppInfo;
 import com.example.testapp.adapter.AppListAdapter;
 import com.example.testapp.utils.PermissionManager;
+import com.example.testapp.services.AppMonitorService;
 
 import java.util.ArrayList;
 import java.util.Collections;
