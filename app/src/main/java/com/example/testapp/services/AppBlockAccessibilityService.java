@@ -105,12 +105,29 @@ public class AppBlockAccessibilityService extends AccessibilityService {
         
         boolean shouldBlock = false;
         if (isBlacklistMode) {
-            // 黑名单模式：检查是否在黑名单中
-            shouldBlock = blockedApps.contains(packageName);
+            // 黑名单模式：精确匹配包名
+            if (!blockedApps.isEmpty()) {
+                String[] blockedPackages = blockedApps.split(",");
+                for (String blockedPackage : blockedPackages) {
+                    if (blockedPackage.trim().equals(packageName)) {
+                        shouldBlock = true;
+                        break;
+                    }
+                }
+            }
             Log.d(TAG, "黑名单模式，是否拦截: " + shouldBlock);
         } else {
             // 白名单模式：检查是否不在白名单中
-            shouldBlock = !whitelistApps.isEmpty() && !whitelistApps.contains(packageName);
+            if (!whitelistApps.isEmpty()) {
+                shouldBlock = true; // 默认拦截
+                String[] whitelistPackages = whitelistApps.split(",");
+                for (String whitelistPackage : whitelistPackages) {
+                    if (whitelistPackage.trim().equals(packageName)) {
+                        shouldBlock = false; // 在白名单中，不拦截
+                        break;
+                    }
+                }
+            }
             Log.d(TAG, "白名单模式，是否拦截: " + shouldBlock);
         }
         

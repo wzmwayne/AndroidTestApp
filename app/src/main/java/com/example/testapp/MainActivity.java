@@ -99,6 +99,9 @@ public class MainActivity extends android.app.Activity {
             updateUI();
             updatePermissionStatus();
             
+            // 启动监控服务
+            startAppMonitorService();
+            
             // 默认显示主界面
             showMainView();
         } catch (Exception e) {
@@ -670,6 +673,9 @@ public class MainActivity extends android.app.Activity {
                 // 按应用名排序
                 Collections.sort(apps, Comparator.comparing(AppInfo::getAppName, String.CASE_INSENSITIVE_ORDER));
                 
+                // 恢复已选择的应用
+                restoreSelectedApps(apps);
+                
                 runOnUiThread(() -> {
                     allApps = apps;
                     try {
@@ -695,6 +701,24 @@ public class MainActivity extends android.app.Activity {
                 });
             }
         }).start();
+    }
+    
+    private void restoreSelectedApps(List<AppInfo> apps) {
+        String appsKey = isBlacklistMode ? "blacklist_apps" : "whitelist_apps";
+        String appsString = getSharedPreferences("app_prefs", MODE_PRIVATE)
+                .getString(appsKey, "");
+        
+        if (!appsString.isEmpty()) {
+            String[] selectedPackages = appsString.split(",");
+            for (AppInfo app : apps) {
+                for (String selectedPackage : selectedPackages) {
+                    if (app.getPackageName().equals(selectedPackage.trim())) {
+                        app.setSelected(true);
+                        break;
+                    }
+                }
+            }
+        }
     }
     
     private void filterApps(String query) {
@@ -747,6 +771,10 @@ public class MainActivity extends android.app.Activity {
         android.util.Log.d("MainActivity", "保存是否成功: " + savedString.equals(verifyString));
         
         Toast.makeText(this, "已保存 " + selectedApps.size() + " 个应用", Toast.LENGTH_SHORT).show();
+        
+        // 重启监控服务以应用新的配置
+        restartAppMonitorService();
+        
         showMainView();
     }
 
@@ -772,6 +800,41 @@ public class MainActivity extends android.app.Activity {
             showMainView();
         } else {
             finish();
+        }
+    }
+    
+    private void startAppMonitorService() {
+        try {
+            boolean protectionEnabled = getSharedPreferences("app_prefs", MODE_PRIVATE)
+                    .getBoolean("protection_enabled", true);
+            
+            if (protectionEnabled && permissionManager.hasAllPermissions()) {
+                Intent serviceIntent = new Intent(this, AppMonitorService.class);
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                    startForegroundService(serviceIntent);
+                } else {
+                    startService(serviceIntent);
+                }
+                android.util.Log.d("MainActivity", "AppMonitorService started");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+            android.util.Log.e("MainActivity", "Error starting AppMonitorService", e);
+        }
+    }
+    
+    private void restartAppMonitorService() {
+        try {
+            Intent serviceIntent = new Intent(this, AppMonitorService.class);
+            stopService(serviceIntent);
+            
+            // 延迟重启以确保服务完全停止
+            new Handler().postDelayed(() -> {
+                startAppMonitorService();
+            }, 1000);
+        } catch (Exception e) {
+            e.printStackTrace();
+            android.util.Log.e("MainActivity", "Error restarting AppMonitorService", e);
         }
     }
 }

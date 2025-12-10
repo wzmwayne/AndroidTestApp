@@ -146,20 +146,23 @@ public class AppMonitorService extends Service {
         String[] apps = appsString.split(",");
         boolean shouldBlock = false;
 
-        for (String app : apps) {
-            if (app.trim().equals(packageName)) {
-                shouldBlock = isBlacklistMode; // 黑名单模式：匹配则拦截，白名单模式：匹配则允许
-                break;
-            }
-        }
-
-        // 白名单模式：未匹配的应用也需要拦截
-        if (!isBlacklistMode) {
-            shouldBlock = true;
+        if (isBlacklistMode) {
+            // 黑名单模式：精确匹配包名
             for (String app : apps) {
                 if (app.trim().equals(packageName)) {
-                    shouldBlock = false; // 白名单中有，允许使用
+                    shouldBlock = true;
                     break;
+                }
+            }
+        } else {
+            // 白名单模式：不在白名单中的应用需要拦截
+            if (!appsString.isEmpty()) {
+                shouldBlock = true; // 默认拦截
+                for (String app : apps) {
+                    if (app.trim().equals(packageName)) {
+                        shouldBlock = false; // 在白名单中，不拦截
+                        break;
+                    }
                 }
             }
         }
