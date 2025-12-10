@@ -102,11 +102,13 @@ public class MainActivity extends android.app.Activity {
             updateUI();
             updatePermissionStatus();
             
-            // 启动监控服务
-            startAppMonitorService();
-            
             // 默认显示主界面
             showMainView();
+            
+            // 延迟启动监控服务，确保UI完全加载
+            new Handler().postDelayed(() -> {
+                startAppMonitorService();
+            }, 500);
         } catch (Exception e) {
             e.printStackTrace();
             showErrorScreen("应用启动出错：" + e.getMessage());
@@ -529,7 +531,13 @@ public class MainActivity extends android.app.Activity {
                 permissionManager = new PermissionManager(this);
             }
             
-            boolean hasAllPermissions = permissionManager.hasAllPermissions();
+            boolean hasAllPermissions = false;
+            try {
+                hasAllPermissions = permissionManager.hasAllPermissions();
+            } catch (Exception e) {
+                android.util.Log.e("MainActivity", "Error checking permissions", e);
+                hasAllPermissions = false;
+            }
             
             if (permissionStatusText != null && requestPermissionsButton != null) {
                 if (hasAllPermissions) {
@@ -808,8 +816,16 @@ public class MainActivity extends android.app.Activity {
     
     private void startAppMonitorService() {
         try {
+            if (permissionManager == null) {
+                android.util.Log.e("MainActivity", "PermissionManager is null");
+                return;
+            }
+            
             boolean protectionEnabled = getSharedPreferences("app_prefs", MODE_PRIVATE)
                     .getBoolean("protection_enabled", true);
+            
+            android.util.Log.d("MainActivity", "Protection enabled: " + protectionEnabled);
+            android.util.Log.d("MainActivity", "Has all permissions: " + permissionManager.hasAllPermissions());
             
             if (protectionEnabled && permissionManager.hasAllPermissions()) {
                 Intent serviceIntent = new Intent(this, AppMonitorService.class);
@@ -819,6 +835,9 @@ public class MainActivity extends android.app.Activity {
                     startService(serviceIntent);
                 }
                 android.util.Log.d("MainActivity", "AppMonitorService started");
+            } else {
+                android.util.Log.d("MainActivity", "Not starting service - protection: " + protectionEnabled + 
+                    ", permissions: " + permissionManager.hasAllPermissions());
             }
         } catch (Exception e) {
             e.printStackTrace();
