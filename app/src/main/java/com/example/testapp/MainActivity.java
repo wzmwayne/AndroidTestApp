@@ -821,27 +821,47 @@ public class MainActivity extends android.app.Activity {
                 return;
             }
             
-            boolean protectionEnabled = getSharedPreferences("app_prefs", MODE_PRIVATE)
-                    .getBoolean("protection_enabled", true);
+            boolean protectionEnabled = false;
+            try {
+                protectionEnabled = getSharedPreferences("app_prefs", MODE_PRIVATE)
+                        .getBoolean("protection_enabled", true);
+            } catch (Exception e) {
+                android.util.Log.e("MainActivity", "Error getting protection preference", e);
+                protectionEnabled = false;
+            }
+            
+            boolean hasAllPermissions = false;
+            try {
+                hasAllPermissions = permissionManager.hasAllPermissions();
+            } catch (Exception e) {
+                android.util.Log.e("MainActivity", "Error checking permissions", e);
+                hasAllPermissions = false;
+            }
             
             android.util.Log.d("MainActivity", "Protection enabled: " + protectionEnabled);
-            android.util.Log.d("MainActivity", "Has all permissions: " + permissionManager.hasAllPermissions());
+            android.util.Log.d("MainActivity", "Has all permissions: " + hasAllPermissions);
             
-            if (protectionEnabled && permissionManager.hasAllPermissions()) {
-                Intent serviceIntent = new Intent(this, AppMonitorService.class);
-                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-                    startForegroundService(serviceIntent);
-                } else {
-                    startService(serviceIntent);
+            if (protectionEnabled && hasAllPermissions) {
+                try {
+                    Intent serviceIntent = new Intent(this, AppMonitorService.class);
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
+                        startForegroundService(serviceIntent);
+                    } else {
+                        startService(serviceIntent);
+                    }
+                    android.util.Log.d("MainActivity", "AppMonitorService started successfully");
+                } catch (Exception e) {
+                    android.util.Log.e("MainActivity", "Failed to start AppMonitorService", e);
+                    Toast.makeText(this, "启动监控服务失败：" + e.getMessage(), Toast.LENGTH_LONG).show();
                 }
-                android.util.Log.d("MainActivity", "AppMonitorService started");
             } else {
                 android.util.Log.d("MainActivity", "Not starting service - protection: " + protectionEnabled + 
-                    ", permissions: " + permissionManager.hasAllPermissions());
+                    ", permissions: " + hasAllPermissions);
             }
         } catch (Exception e) {
             e.printStackTrace();
-            android.util.Log.e("MainActivity", "Error starting AppMonitorService", e);
+            android.util.Log.e("MainActivity", "Error in startAppMonitorService", e);
+            Toast.makeText(this, "服务启动出错：" + e.getMessage(), Toast.LENGTH_LONG).show();
         }
     }
     

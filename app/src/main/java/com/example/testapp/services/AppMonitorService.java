@@ -38,16 +38,27 @@ public class AppMonitorService extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
-        handler = new Handler(Looper.getMainLooper());
-        prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
-        createNotificationChannel();
-        startForeground(NOTIFICATION_ID, createNotification());
+        try {
+            handler = new Handler(Looper.getMainLooper());
+            prefs = getSharedPreferences("app_prefs", MODE_PRIVATE);
+            createNotificationChannel();
+            startForeground(NOTIFICATION_ID, createNotification());
+            Log.d(TAG, "AppMonitorService created successfully");
+        } catch (Exception e) {
+            Log.e(TAG, "Error in onCreate", e);
+        }
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        startMonitoring();
-        return START_STICKY;
+        try {
+            Log.d(TAG, "onStartCommand called");
+            startMonitoring();
+            return START_STICKY;
+        } catch (Exception e) {
+            Log.e(TAG, "Error in onStartCommand", e);
+            return START_NOT_STICKY;
+        }
     }
 
     @Nullable
@@ -204,12 +215,34 @@ public class AppMonitorService extends Service {
     }
 
     private Notification createNotification() {
-        return new NotificationCompat.Builder(this, CHANNEL_ID)
-                .setContentTitle("应用管理器")
-                .setContentText("正在监控前台应用")
-                .setSmallIcon(R.mipmap.ic_launcher)
-                .setPriority(NotificationCompat.PRIORITY_LOW)
-                .build();
+        try {
+            int iconResource;
+            // 尝试获取应用图标
+            try {
+                iconResource = getResources().getIdentifier("ic_launcher", "mipmap", getPackageName());
+                if (iconResource == 0) {
+                    iconResource = android.R.drawable.ic_dialog_info;
+                }
+            } catch (Exception e) {
+                iconResource = android.R.drawable.ic_dialog_info;
+            }
+            
+            return new NotificationCompat.Builder(this, CHANNEL_ID)
+                    .setContentTitle("应用管理器")
+                    .setContentText("正在监控前台应用")
+                    .setSmallIcon(iconResource)
+                    .setPriority(NotificationCompat.PRIORITY_LOW)
+                    .build();
+        } catch (Exception e) {
+            Log.e(TAG, "Error creating notification", e);
+            // 创建一个简单的通知作为备用
+            return new NotificationCompat.Builder(this, CHANNEL_ID)
+                    .setContentTitle("应用管理器")
+                    .setContentText("服务运行中")
+                    .setSmallIcon(android.R.drawable.ic_dialog_info)
+                    .setPriority(NotificationCompat.PRIORITY_LOW)
+                    .build();
+        }
     }
 
     @Override
